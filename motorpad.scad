@@ -2,46 +2,49 @@
 use <quadparts.scad>;
 use <pvc_adapter.scad>;
 
-module pad_projection(baseWidth, padWidth, padLength){
-
-points =[
-         [baseWidth / 2, 0],
-	     [padWidth / 2, strech],
-         [-padWidth / 2, strech],
-         [-baseWidth / 2, 0]
-        ];
-difference(){
-  union ()
-  {
-    polygon (points);
-    translate ([-padWidth / 2, strech])
+module pad_projection(baseWidth, padWidth, padLength, extra){
+    
+outerdiameter = padLength;
+basewidth = baseWidth;
+    
+outerradius = outerdiameter / 2;
+CS = sqrt (pow (outerradius + extra, 2) + pow (basewidth / 2, 2));
+T = sqrt (pow (outerradius + extra, 2) + pow (basewidth / 2, 2) - pow(outerradius, 2));
+phi = 180 - asin (outerradius / CS) - acos (basewidth / (2 * CS));
+    
+points =[[basewidth / 2, 0],
+	 [basewidth / 2 + T * cos (phi), T * sin (phi)],
+	 [-basewidth / 2 - T * cos (phi), T * sin (phi)],[-basewidth / 2, 0]];
+   
+    resize([padWidth, padLength + extra])
+    union ()
     {
-      difference ()
-      {
-	square ([padWidth, padLength]);
-      };
+	polygon (points = points);
+    translate ([0, outerradius + extra])
+    circle (d = outerdiameter);
     };
-  };
-  
-    radius = (padWidth - baseWidth) / 2;
-    translate([padWidth / 2, 0])
-    resize(newsize=[radius * 2, strech * 2])
-    circle(r = radius);
-
-    translate([-padWidth / 2, 0])
-    resize(newsize=[radius * 2, strech * 2])
-    circle(r = radius);
-};
 };
 
 module padShaped(){
+// This most outer difference removes all the extra material and shapes the piece as we want it
 difference(){
 
+// This initial difference on the pad makes the cut outs for the motor screw holes and makes the cutout 
+// for the motor cross pad that will eventually be added
+difference(){
 linear_extrude (height = height, center = false)
-pad_projection(baseWidth, padWidth, padLength);
+pad_projection(baseWidth, padWidth, padLength, extra=strech);
     
+//Motor mount screw holes and cross pad
+zMountCross = motorDepth;
+translate([0, strech + padLength / 2, zMountCross])
+rotate(-45)
+mountCrossDiff(screwDiameter, mountDiameter, screwLength=height, motorDepth=motorDepth, extra=padThickness);    
+};   
+   
 
-// Center cut out
+// Center cut out 
+// This creates the cylinder that makes the arc underneath the pad
 cyWidth = padWidth + 5;
 translate([0, totalLength, subHeight / 2])
 union(){
@@ -53,7 +56,8 @@ translate([-cyWidth / 2, -padLength, -subHeight / 2])
 cube([cyWidth, padLength, subHeight / 2], center=false);
 };
 
-
+// Two cylinders to remove the material from the sides of the platform and create the I beam shape in the 
+// center
 translate([padWidth / 2, totalLength, subHeight / 2])
 resize([sideDiameter, totalLength, subHeight])
 rotate(90, v=[1,0,0])
@@ -64,6 +68,8 @@ resize([sideDiameter, totalLength, subHeight])
 rotate(90, v=[1,0,0])
 cylinder(h=totalLength, d=subHeight);
 
+// This is a cube that is used to remove excess material from the bottom of the model. There is
+// a circular cut out in the top middle of it in order to leave the I beam shape
 difference(){
 translate([-padWidth / 2, 0, 0])
 cube([padWidth, totalLength, height / 2]);
@@ -75,8 +81,11 @@ cylinder(h=totalLength, d=adapterInnerDiameter);
 };
 }
 
-padLength = 45;
-padWidth = 53;
+// Define all sizes having to do with the motor pad itself
+//padLength = 45;
+//padWidth = 53;
+padLength = 38;
+padWidth = 38;
 padThickness = 4;
 baseWidth = 20;
 strech = 10;
@@ -84,44 +93,45 @@ totalLength = padLength + strech;
 height = 42;
 subHeight = height - padThickness;
 
+// Define all measurements for the PVC adapter
 adapterInnerDiameter = 34;
 adapterOuterDiameter = 42;
 adapterLength = strech + 20;
 holeDepth = adapterLength;
 
-centerBarWidth = 10;
+//PVC adapter side mount holes
+shScrewDiameter = 4.2;
+shPadDiameter = 8;
+shPadWidth = 2;
+
+// These control the width of the I beam shape in that can be seen in the center of the 
+// hole for the PVC adapter
+centerBarWidth = 5;
 sideDiameter = padWidth - centerBarWidth;
 
+// Measurements used to create the screw holes for mounting the motor.
 screwDiameter = 3;
 mountDiameter = 6;
 screwLength = 12;
 motorDepth = 3;
 
-
-
-difference(){
+translate([0, 0, height])
+rotate(180, v=[0,1,0])
 union(){
+    
 padShaped();
 
-translate([0, strech, height / 2]) 
-rotate(90, v=[1, 0, 0])
-pvc_adapterD(innerdiameter=adapterInnerDiameter,outerdiameter=adapterOuterDiameter,basewidth=baseWidth,extra=0,height=adapterLength);
-}
-
-// Use screw length 20 to make sure we cut though all the pad
-zMountCross = height - (20 - motorDepth);
-translate([0, strech + padLength / 2, zMountCross])
-rotate(-45)
-mountCrossDiff(screwDiameter, mountDiameter, screwLength=20, motorDepth=motorDepth, extra=padThickness);
-
-}
-
+// Add the motor mount cross pad for the screws 
 zMountCross = height - (screwLength - motorDepth);
 translate([0, strech + padLength / 2, zMountCross])
 rotate(-45)
-mountCross(screwDiameter, mountDiameter, screwLength, motorDepth, extra=padThickness);
+mountCross(screwDiameter, mountDiameter, screwLength, motorDepth, extra=padThickness);    
+    
+// Merge in the PVC adapter 
+translate([0, strech, height / 2]) 
+rotate(90, v=[1, 0, 0])
+pvc_adapter(innerdiameter=adapterInnerDiameter,outerdiameter=adapterOuterDiameter,basewidth=baseWidth,extra=0,height=adapterLength, doubleflat=true, sideholes=false, shpadwidth=shPadWidth, shpaddiameter=shPadDiameter, shscrewdiameter=shScrewDiameter);
+    
 
-//translate([0, strech, height / 2]) 
-//rotate(90, v=[1, 0, 0])
-//cylinder(h=holeDepth, d=adapterInnerDiameter);
-//};
+    
+};
