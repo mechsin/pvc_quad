@@ -105,6 +105,12 @@ shPadDiameter = 8;
 shPadWidth = 2;
 shChamferAngle = 45;
 
+// Mark Text parameters
+markText = "Mk4";
+textHeight = 1.5;
+markXTrans = -(baseWidth / 2 - 1);
+markYTrans = -(adapterLength - strech - 1);
+
 
 // These control the width of the I beam shape in that can be seen in the center of the
 // hole for the PVC adapter
@@ -113,11 +119,11 @@ sideDiameter = padWidth - centerBarWidth;
 
 // Measurements used to create the screw holes for mounting the motor.
 screwDiameter = 3;
-mountDiameter = 6;
+mountDiameter = 8;
 screwLength = 12;
 motorDepth = 3;
 
-difference(){
+
 translate([0, 0, height])
 rotate(180, v=[0,1,0])
 union(){
@@ -137,7 +143,7 @@ pvc_adapter(innerdiameter=adapterInnerDiameter,outerdiameter=adapterOuterDiamete
 
 };
 
-rotate(180, v=[0,1,0])
-linear_extrude(height=padThickness / 2, center=false)
-text("#4", font="Noto Mono:style=Regular", direction="ltr", valign="top", halign="left", size=5);
-}
+// Add Version text
+translate([markXTrans, markYTrans, height])
+linear_extrude(height=textHeight, center=false)
+text(markText, valign="bottom", halign="left", size=3);
