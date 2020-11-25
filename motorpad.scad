@@ -1,6 +1,7 @@
 
 use <quadparts.scad>;
 use <pvc_adapter.scad>;
+use <landingStrutMk1.scad>;
 
 module pad_projection(baseWidth, padWidth, padLength, extra){
 
@@ -39,7 +40,7 @@ pad_projection(baseWidth, padWidth, padLength, extra=strech);
 zMountCross = motorDepth;
 translate([0, strech + padLength / 2, zMountCross])
 rotate(-45)
-mountCrossDiff(screwDiameter, mountDiameter, screwLength=height, motorDepth=motorDepth, extra=padThickness);
+mountCrossDiff(screwDiameter, mountDiameter, screwLength=height, motorDepth=motorDepth, extra=padThickness, centerHoleDiameter=centerHoleDiameter);
 };
 
 
@@ -100,13 +101,13 @@ adapterLength = strech + 20;
 holeDepth = adapterLength;
 
 //PVC adapter side mount holes
-shScrewDiameter = 4.2;
-shPadDiameter = 8;
-shPadWidth = 2;
+shScrewDiameter = 6.0;
+shPadDiameter = 9;
+shPadWidth = 1.5;
 shChamferAngle = 45;
 
 // Mark Text parameters
-markText = "Mk4";
+markText = "Mk5";
 textHeight = 1.5;
 markXTrans = -(baseWidth / 2 - 1);
 markYTrans = -(adapterLength - strech - 1);
@@ -122,10 +123,20 @@ screwDiameter = 3;
 mountDiameter = 8;
 screwLength = 12;
 motorDepth = 3;
+centerHoleDiameter = 8;
+
+// Land strut measurements
+strutLength = baseWidth;
+strutWidthInitial = adapterLength;
+strutWidthFinal = 15;
+strutHeight = 70;
+
+
 
 
 translate([0, 0, height])
 rotate(180, v=[0,1,0])
+
 union(){
 
 padShaped();
@@ -134,16 +145,24 @@ padShaped();
 zMountCross = height - (screwLength - motorDepth);
 translate([0, strech + padLength / 2, zMountCross])
 rotate(-45)
-mountCross(screwDiameter, mountDiameter, screwLength, motorDepth, extra=padThickness);
+mountCross(screwDiameter, mountDiameter, screwLength, motorDepth, extra=padThickness, centerHoleDiameter=centerHoleDiameter);
 
-// Merge in the PVC adapter
+
+
 translate([0, strech, height / 2])
+rotate(180, [0, 1, 0])
+// Merge PVC Adapter and landing strut together
+union() {
+translate([-baseWidth / 2,-adapterLength,adapterOuterDiameter / 2])
+landingStrut(strutLength, strutWidthInitial, strutWidthFinal, strutHeight, webCircles=true);
 rotate(90, v=[1, 0, 0])
-pvc_adapter(innerdiameter=adapterInnerDiameter,outerdiameter=adapterOuterDiameter,basewidth=baseWidth,extra=0,height=adapterLength, doubleflat=true, sideholes=true, shpadwidth=shPadWidth, shpaddiameter=shPadDiameter, shscrewdiameter=shScrewDiameter, shchamferangle=shChamferAngle);
+pvc_adapter(innerdiameter=adapterInnerDiameter,outerdiameter=adapterOuterDiameter,basewidth=baseWidth,extra=0,height=adapterLength, numberflats=2, sideholes=true, shpadwidth=shPadWidth, shpaddiameter=shPadDiameter, shscrewdiameter=shScrewDiameter, shchamferangle=shChamferAngle);
+}
+
 
 };
 
 // Add Version text
-translate([markXTrans, markYTrans, height])
-linear_extrude(height=textHeight, center=false)
-text(markText, valign="bottom", halign="left", size=3);
+//translate([markXTrans, markYTrans, height])
+//linear_extrude(height=textHeight, center=false)
+//text(markText, valign="bottom", halign="left", size=3);
