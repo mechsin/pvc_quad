@@ -3,47 +3,47 @@ use <quadparts.scad>;
 use <pvc_adapter.scad>;
 
 module pad_projection(baseWidth, padWidth, padLength, extra){
-    
+
 outerdiameter = padLength;
 basewidth = baseWidth;
-    
+
 outerradius = outerdiameter / 2;
 CS = sqrt (pow (outerradius + extra, 2) + pow (basewidth / 2, 2));
 T = sqrt (pow (outerradius + extra, 2) + pow (basewidth / 2, 2) - pow(outerradius, 2));
 phi = 180 - asin (outerradius / CS) - acos (basewidth / (2 * CS));
-    
+
 points =[[basewidth / 2, 0],
-	 [basewidth / 2 + T * cos (phi), T * sin (phi)],
-	 [-basewidth / 2 - T * cos (phi), T * sin (phi)],[-basewidth / 2, 0]];
-   
-    resize([padWidth, padLength + extra])
-    union ()
-    {
-	polygon (points = points);
-    translate ([0, outerradius + extra])
-    circle (d = outerdiameter);
-    };
+[basewidth / 2 + T * cos (phi), T * sin (phi)],
+[-basewidth / 2 - T * cos (phi), T * sin (phi)],[-basewidth / 2, 0]];
+
+resize([padWidth, padLength + extra])
+union ()
+{
+polygon (points = points);
+translate ([0, outerradius + extra])
+circle (d = outerdiameter);
+};
 };
 
 module padShaped(){
 // This most outer difference removes all the extra material and shapes the piece as we want it
 difference(){
 
-// This initial difference on the pad makes the cut outs for the motor screw holes and makes the cutout 
+// This initial difference on the pad makes the cut outs for the motor screw holes and makes the cutout
 // for the motor cross pad that will eventually be added
 difference(){
 linear_extrude (height = height, center = false)
 pad_projection(baseWidth, padWidth, padLength, extra=strech);
-    
+
 //Motor mount screw holes and cross pad
 zMountCross = motorDepth;
 translate([0, strech + padLength / 2, zMountCross])
 rotate(-45)
-mountCrossDiff(screwDiameter, mountDiameter, screwLength=height, motorDepth=motorDepth, extra=padThickness);    
-};   
-   
+mountCrossDiff(screwDiameter, mountDiameter, screwLength=height, motorDepth=motorDepth, extra=padThickness);
+};
 
-// Center cut out 
+
+// Center cut out
 // This creates the cylinder that makes the arc underneath the pad
 cyWidth = padWidth + 5;
 translate([0, totalLength, subHeight / 2])
@@ -56,7 +56,7 @@ translate([-cyWidth / 2, -padLength, -subHeight / 2])
 cube([cyWidth, padLength, subHeight / 2], center=false);
 };
 
-// Two cylinders to remove the material from the sides of the platform and create the I beam shape in the 
+// Two cylinders to remove the material from the sides of the platform and create the I beam shape in the
 // center
 translate([padWidth / 2, totalLength, subHeight / 2])
 resize([sideDiameter, totalLength, subHeight])
@@ -103,8 +103,10 @@ holeDepth = adapterLength;
 shScrewDiameter = 4.2;
 shPadDiameter = 8;
 shPadWidth = 2;
+shChamferAngle = 45;
 
-// These control the width of the I beam shape in that can be seen in the center of the 
+
+// These control the width of the I beam shape in that can be seen in the center of the
 // hole for the PVC adapter
 centerBarWidth = 5;
 sideDiameter = padWidth - centerBarWidth;
@@ -115,23 +117,27 @@ mountDiameter = 6;
 screwLength = 12;
 motorDepth = 3;
 
+difference(){
 translate([0, 0, height])
 rotate(180, v=[0,1,0])
 union(){
-    
+
 padShaped();
 
-// Add the motor mount cross pad for the screws 
+// Add the motor mount cross pad for the screws
 zMountCross = height - (screwLength - motorDepth);
 translate([0, strech + padLength / 2, zMountCross])
 rotate(-45)
-mountCross(screwDiameter, mountDiameter, screwLength, motorDepth, extra=padThickness);    
-    
-// Merge in the PVC adapter 
-translate([0, strech, height / 2]) 
-rotate(90, v=[1, 0, 0])
-pvc_adapter(innerdiameter=adapterInnerDiameter,outerdiameter=adapterOuterDiameter,basewidth=baseWidth,extra=0,height=adapterLength, doubleflat=true, sideholes=false, shpadwidth=shPadWidth, shpaddiameter=shPadDiameter, shscrewdiameter=shScrewDiameter);
-    
+mountCross(screwDiameter, mountDiameter, screwLength, motorDepth, extra=padThickness);
 
-    
+// Merge in the PVC adapter
+translate([0, strech, height / 2])
+rotate(90, v=[1, 0, 0])
+pvc_adapter(innerdiameter=adapterInnerDiameter,outerdiameter=adapterOuterDiameter,basewidth=baseWidth,extra=0,height=adapterLength, doubleflat=true, sideholes=true, shpadwidth=shPadWidth, shpaddiameter=shPadDiameter, shscrewdiameter=shScrewDiameter, shchamferangle=shChamferAngle);
+
 };
+
+rotate(180, v=[0,1,0])
+linear_extrude(height=padThickness / 2, center=false)
+text("#4", font="Noto Mono:style=Regular", direction="ltr", valign="top", halign="left", size=5);
+}
