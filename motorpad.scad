@@ -101,7 +101,7 @@ adapterLength = strech + 20;
 holeDepth = adapterLength;
 
 //PVC adapter side mount holes
-shScrewDiameter = 6.0;
+shScrewDiameter = 6.1;
 shPadDiameter = 9;
 shPadWidth = 1.5;
 shChamferAngle = 45;
