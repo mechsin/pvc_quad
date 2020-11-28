@@ -93,5 +93,5 @@ module landingStrut(length, widthInitial, widthFinal, height, flangeWidth=4, web
 };
 
 
-landingStrut(20, 30, 15, 90, webCircles=true);
+//landingStrut(20, 30, 15, 70, webCircles=true);
 

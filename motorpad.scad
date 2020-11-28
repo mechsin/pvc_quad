@@ -1,7 +1,7 @@
 
 use <quadparts.scad>;
-use <pvc_adapter.scad>;
-use <landingStrutMk1.scad>;
+use <pvcadapter.scad>;
+use <landingstrut.scad>;
 
 module pad_projection(baseWidth, padWidth, padLength, extra){
 
