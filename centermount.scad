@@ -7,8 +7,12 @@ hexagon (d, height)
    D = d * 2 / sqrt(3);
    t = D / 2;
 
-  for (r =[0, 60, 120])
-    rotate ([0, 0, r]) cube ([t, d, height], true);
+   translate([0, 0, height / 2])
+   union() {
+   for (r =[0, 60, 120]) {
+     rotate ([0, 0, r]) cube ([t, d, height], true);
+   }
+}
 }
 
 
