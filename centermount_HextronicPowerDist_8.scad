@@ -23,4 +23,7 @@ mountDiameter = 8;
 mountHoleDiameter = 4.5;
 mountOffset = 1.5;
 
-centerBoardMount(beamLength, beamWidth, beamHeight, offsetX, offsetY, boardDiameter, boardHoleDiameter, boardNutDiameter, boardNutDepth, mountDiameter, mountHoleDiameter, mountOffset, true);
+// Brace
+braceOffset = sqrt(pow(offsetX, 2) + pow(offsetY, 2)) / 2;
+
+centerBoardMount(beamLength, beamWidth, beamHeight, offsetX, offsetY, boardDiameter, boardHoleDiameter, boardNutDiameter, boardNutDepth, mountDiameter, mountHoleDiameter, mountOffset, braceOffset=braceOffset, centerHole=true);
