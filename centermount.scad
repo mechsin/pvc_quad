@@ -17,7 +17,7 @@ hexagon (d, height)
 
 
 module
-centerBoardMount(beamLength, beamWidth, beamHeight, hole2holeX, hole2holeY, boardDiameter, boardHoleDiameter, boardNutDiameter, boardNutDepth, mountDiameter, mountHoleDiameter, mountOffSet, centerHole=true)
+centerBoardMount(beamLength, beamWidth, beamHeight, hole2holeX, hole2holeY, boardDiameter, boardHoleDiameter, boardNutDiameter, boardNutDepth, mountDiameter, mountHoleDiameter, mountOffSet, braceOffset=0, braceWidth=0, centerHole=true)
 {
 
 // This translate list is use to create the holes for the board
@@ -35,6 +35,9 @@ diagonalBoard = sqrt(pow(hole2holeX, 2) + pow(hole2holeY, 2));
 diagonalMount = beamLength - mountDiameter - 2 * mountOffset;
 translateBoard = diagonalBoard/ 2 * translateList;
 translateMount = concat(diagonalMount / 2 * translateList, [[0,0,0]]);
+
+// Brace Dimensions
+braceWidth = braceWidth ? braceWidth : beamWidth;
 
 // After the part is constructed we flip it over and put it in the
 // positive Z space. This is so the inserts for the nuts will be
@@ -70,6 +73,22 @@ union() {
    rotate(-90)
    translate([-beamWidth / 2, -beamLength / 2, 0])
    cube([beamWidth, beamLength, beamHeight]);
+
+   // Add braces if brace offset was provided
+   if (braceOffset) {
+      braceLength = sqrt(pow(braceOffset, 2) + pow(braceOffset, 2));
+      bracePoints = [
+                     [braceOffset, 0]
+                     , [braceOffset + braceWidth / sin(45), 0]
+                     , [0, braceOffset + braceWidth / sin(45)]
+                     , [0, braceOffset]
+                    ];
+      for (rv = [0:90:270]) {
+         rotate(rv, v=[0, 0, 1])
+         linear_extrude(beamHeight)
+         polygon(bracePoints);
+      }
+   }
 };
 
 // Create the holes for the board in the mounts and
@@ -114,8 +133,9 @@ for (entry = translateMount) {
 //mountHoleDiameter = 4.5;
 //mountOffset = 2;
 //
+//// Brace
+//braceOffset = sqrt(pow(hole2holeX, 2) + pow(hole2holeY, 2)) / 2;
 //
 //
-//
-//centerBoardMount(beamLength, beamWidth, beamHeight, hole2holeX, hole2holeY, boardDiameter, boardHoleDiameter, boardNutDiameter, boardNutDepth, mountDiameter, mountHoleDiameter, mountOffset, true);
+//centerBoardMount(beamLength, beamWidth, beamHeight, hole2holeX, hole2holeY, boardDiameter, boardHoleDiameter, boardNutDiameter, boardNutDepth, mountDiameter, mountHoleDiameter, mountOffset, braceOffset=braceOffset, centerHole=true);
 
