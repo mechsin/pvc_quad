@@ -26,4 +26,15 @@ mountOffset = 1.5;
 // Brace
 braceOffset = sqrt(pow(offsetX, 2) + pow(offsetY, 2)) / 2;
 
+difference(){
+
 centerBoardMount(beamLength, beamWidth, beamHeight, offsetX, offsetY, boardDiameter, boardHoleDiameter, boardNutDiameter, boardNutDepth, mountDiameter, mountHoleDiameter, mountOffset, braceOffset=braceOffset, centerHole=true);
+
+// Part Marking
+letterDepth = 1;
+translate([-5, -(beamWidth / 2 - letterDepth), beamHeight])
+rotate(180, v=[0,1,0])
+rotate(90, v=[1,0,0])
+linear_extrude(letterDepth)
+text("Mk6", size=8, font="Nimbus Mono PS:style=Bold", halign="left");
+}
