@@ -5,3 +5,7 @@ These are open SCAD files for a custom quadcopter that uses 1 inch PVC pipe and 
 This is really just a personal project I don't intend to update this repo with full build notes. If would like to use any of the parts feel free to. 
 
 The can all be printed with out supports. I use an Anet A8 to print them so you don't need a precision machine. I primary print in PLA or PLA+ my pieces break frequently but usually after a crash that I think would warrant it, I am not a great pilot :).
+
+![Quad overview powered up  and tools](images/overhead_view.jpg "Quad over head view")
+
+![Flight controller mount up close](images/FC_Mount_SideShot_Assembled.jpg "FC Mount Side Shot")
